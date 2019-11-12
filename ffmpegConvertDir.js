@@ -7,14 +7,24 @@ const fs = require('fs');
 const process = require('process');
 var async = require('async');
 
+const exiftool = require('node-exiftool')
+const ep = new exiftool.ExiftoolProcess()
+
 
 var directoryPath;
+var file1json = ''
+var newProperties = {}
+var modificationProperties = ['ModifyDate','CreateDate','TrackCreateDate','TrackModifyDate','MediaCreateDate','MediaModifyDate']
 
+
+// 
 function usage(){
 	console.log("Usage: " + __filename + " path/to/directory");
 	process.exit(-1);    
 }
 
+
+// Check Arguments
 if (process.argv.length == 3 && process.argv[2] === "-h") {
     usage();
 } else if ( process.argv.length == 3 ) {
@@ -24,7 +34,7 @@ if (process.argv.length == 3 && process.argv[2] === "-h") {
 }
 
 
-console.log(directoryPath)
+console.error(directoryPath)
 // Check if it is a directory
 
 try {
@@ -86,9 +96,41 @@ fs.readdir(directoryPath, function (err, files) {
 			})
 			.save(destFilePath)
 			.on('end',() => {
-				console.log('Processing finished ('+ destFilePath +')' )
-				console.timeEnd(sourceFilePath);
-				seriesCallback();
+				console.log();//enter empty line after progress bar
+
+				ep
+				.open()
+				.then(() => ep.readMetadata(sourceFilePath, ['-File:all']))
+				.then((a) => 
+				  {
+					file1json=a.data[0];
+					
+					newProperties = {}
+					for (const key in modificationProperties) { 
+						if (file1json.hasOwnProperty(modificationProperties[key])){
+						  newProperties[modificationProperties[key]] = file1json[modificationProperties[key]];
+						}
+					}
+				  //   console.log(newProperties);
+				  }, console.error)
+				.then(() => ep.writeMetadata(destFilePath, {
+				  all: '', // remove existing tags
+				  //comment: 'Exiftool rules!',
+				  ... newProperties,
+				  'Keywords+': [ 'resizedMedia' ],
+				}, ['overwrite_original']))
+				.then(console.log, console.error) // output that 
+				.then(() => ep.close())
+				.then(() =>
+					{
+						console.log('Processing finished ('+ destFilePath +')' )
+						console.timeEnd(sourceFilePath);
+						seriesCallback();
+					})
+				.catch(console.error)
+
+				// 
+				
 			});
 
 
@@ -97,8 +139,6 @@ fs.readdir(directoryPath, function (err, files) {
 
 
 
-
-
-
+ 
 
 
