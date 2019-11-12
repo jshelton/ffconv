@@ -39,7 +39,7 @@ ep
   .then(() => ep.readMetadata('file_example_MP4_1920_18MG_1.mp4', ['-File:all']))
 //   .then(() => ep.readMetadata('file_example_MP4_1920_18MG_1.mp4_1280_L.mp4', ['-File:all']))
   .then((a)=>{file1json=a}, console.error)
-  .then(() => ep.readMetadata('file_example_MP4_1920_18MG_1.mp4_1280_LB.mp4', ['-File:all']))
+  .then(() => ep.readMetadata('file_example_MP4_1920_18MG_1.mp4_1280_L.mp4', ['-File:all']))
   .then((a)=>{file2json=a}, console.error)
   .then(() => ep.close())
   .then(() => console.log('Closed exiftool'))
