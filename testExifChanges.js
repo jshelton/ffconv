@@ -1,20 +1,5 @@
-const _ = require('lodash') 
-
 const exiftool = require('node-exiftool')
 const ep = new exiftool.ExiftoolProcess()
-
-
-var compareJSON = function(obj1, obj2) {
-    var ret = {};
-    for(var i in obj2) {
-      if(!obj1.hasOwnProperty(i) || obj2[i] !== obj1[i]) {
-        ret[i] = obj2[i];
-      }
-    }
-    return ret;
-  };
-  
-
 
 
   // use $.isEmptyObject or this
