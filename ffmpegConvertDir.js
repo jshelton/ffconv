@@ -5,6 +5,8 @@ var command = ffmpeg();
 const path = require('path');
 const fs = require('fs');
 const process = require('process');
+var async = require('async');
+
 
 var directoryPath;
 
@@ -55,7 +57,7 @@ fs.readdir(directoryPath, function (err, files) {
 
     //files.filter(el => /\.txt$/.test(el))
 
-    movieFiles.forEach( (file) => {
+    async.eachSeries(movieFiles, (file,seriesCallback) => {
 
 		//sourceFilePath = '/Volumes/Seagate Pictures 8TB/Import/2019-10-10/U32/DCIM/101MEDIA/DJI_0039D.MOV'
 		//destFilePath = '/Volumes/Seagate Pictures 8TB/Import/2019-10-10/U32/DCIM/101MEDIA/DJI_0039E.MOV'
@@ -73,24 +75,26 @@ fs.readdir(directoryPath, function (err, files) {
 		    .audioCodec('copy')
 			.videoFilter('scale='+scaleName+':-1')
 			.on('start', (commandLine) => {
-				console.log('Spawned Ffmpeg with command: '+sourceFilePath)// + commandLine);
+				console.log('Spawned Ffmpeg with command: '+commandLine);
 				console.time(sourceFilePath);
 			  })
 		    .on('error', (err) => console.log('An error occurred: ' + err.message))
-		    .on('end',() => {
+		    .on('progress', (progress) => {
+				process.stdout.clearLine();
+				process.stdout.cursorTo(0);
+				process.stdout.write('Processing: ' + pad(parseFloat(progress.percent ).toFixed(2),5)+ '% done ('+sourceFilePath+')');
+			})
+			.save(destFilePath)
+			.on('end',() => {
 				console.log('Processing finished ('+ destFilePath +')' )
 				console.timeEnd(sourceFilePath);
-			})
-			.on('progress', (progress) => {
-				//process.stdout.clearLine();
-				//process.stdout.cursorTo(0);
-				process.stdout.write('Processing: ' + pad(parseFloat(progress.percent ).toFixed(2),5)+ '% done ('+sourceFilePath+')\n');
-			})
-		    .save(destFilePath);
+				seriesCallback();
+			});
 
 
-    });
+		});
 });
+
 
 
 
