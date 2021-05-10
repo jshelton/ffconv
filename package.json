@@ -12,7 +12,7 @@
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
     "fluent-ffmpeg": "^2.1.2",
     "gearmanode": "^0.9.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "mongodb": "^3.3.4",
     "node-exiftool": "^2.3.0",
     "winston": "^0.7.1"
